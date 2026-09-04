@@ -34,3 +34,6 @@ takeout_imports/
 
 # macOS
 .DS_Store
+
+# Compiled scripts
+scripts/iphone_mirror_keepalive
