@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
+# Created by 11hopem (11 Hopem Software Ltd. Şti.)
+# Copyright (c) 2026 11hopem. All rights reserved.
+# Licensed under 11 Hopem Software Proprietary License.
 """
 Google Photos Backup - Entrypoint script.
 Provides CLI management and local web dashboard launcher.
 """
+
 
 import sys
 from src.cli import (

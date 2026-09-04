@@ -1,6 +1,11 @@
+# Created by 11hopem (11 Hopem Software Ltd. Şti.)
+# Copyright (c) 2026 11hopem. All rights reserved.
+# Licensed under 11 Hopem Software Proprietary License.
+
 import os
 from dataclasses import dataclass
 from pathlib import Path
+
 
 # Base project directory
 BASE_DIR = Path(__file__).resolve().parent.parent

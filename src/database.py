@@ -1,5 +1,10 @@
+# Created by 11hopem (11 Hopem Software Ltd. Şti.)
+# Copyright (c) 2026 11hopem. All rights reserved.
+# Licensed under 11 Hopem Software Proprietary License.
+
 import sqlite3
 from datetime import datetime, timezone
+
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from src.config import config
