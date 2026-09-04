@@ -37,9 +37,22 @@ This document tracks all architectural decisions, implementations, and system ha
   - **Native Swift (`scripts/iphone_mirror_keepalive.swift`)**: Uses `IOKit.pwr_mgt` (`kIOPMAssertionTypePreventUserIdleDisplaySleep`) to block system/display sleep.
   - **Dynamic Window Lookup**: Uses `CGWindowListCopyWindowInfo` to detect the `iPhone Mirroring` window rect in real time.
   - **Seamless Mouse Cursor Preservation**: Automatically saves and restores the Mac pointer (`CGWarpMouseCursorPosition`) after each simulated gesture.
-  - **Global Binary**: Compiled and installed to `~/.local/bin/iphone-keepalive`.
+  ### [2026-09-05 00:39] Automated Unit Test Suite Implementation
+- **Task & Objective**: Implement comprehensive zero-dependency automated unit test suite complying with system-wide testing standard (Section 8 of AGENTS.md).
+- **Technical Decisions & Architecture**:
+  - Built on Python's native `unittest` framework ensuring immediate execution with zero third-party installation.
+  - Implemented `tests/test_database.py`: Verifies SQLite table creation, insertion, duplicate detection via SHA-256 hashes, and album tracking.
+  - Implemented `tests/test_downloader.py`: Verifies filename sanitization, target directory hierarchy (`YYYY/MM/` and `Albums/`), and filename collision resolution.
+  - Implemented `tests/test_cli.py`: Verifies argument parsing across all subcommands (`auth`, `status`, `albums`, `sync`, `takeout`, `web`) and byte format utility.
 - **Affected Files & Components**:
-  - [scripts/iphone_mirror_keepalive.swift](file:///Users/umut/mycodespaces/google-photos-backup/scripts/iphone_mirror_keepalive.swift)
-  - [.gitignore](file:///Users/umut/mycodespaces/google-photos-backup/.gitignore)
+  - [tests/__init__.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/__init__.py)
+  - [tests/test_database.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/test_database.py)
+  - [tests/test_downloader.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/test_downloader.py)
+  - [tests/test_cli.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/test_cli.py)
+  - [src/database.py](file:///Users/umut/mycodespaces/google-photos-backup/src/database.py)
+  - [src/downloader.py](file:///Users/umut/mycodespaces/google-photos-backup/src/downloader.py)
   - [WORKLOG.md](file:///Users/umut/mycodespaces/google-photos-backup/WORKLOG.md)
+- **Current Status & Verification**:
+  - `python3 -m unittest discover -s tests -p "test_*.py"` executed: 11/11 tests passed in 0.022s with 100% success.
+
 

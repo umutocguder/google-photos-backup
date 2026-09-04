@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from src.config import config
@@ -87,7 +87,7 @@ class DatabaseManager:
         album_title: Optional[str] = None,
     ) -> None:
         """Insert or replace a downloaded media item record."""
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -114,7 +114,7 @@ class DatabaseManager:
 
     def save_album(self, album_id: str, title: str, total_items: int, cover_url: Optional[str] = None) -> None:
         """Insert or update album metadata."""
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -128,7 +128,7 @@ class DatabaseManager:
 
     def start_sync_run(self) -> int:
         """Create a new sync run log entry and return its ID."""
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -148,7 +148,7 @@ class DatabaseManager:
         error: Optional[str] = None,
     ) -> None:
         """Mark a sync run as finished with summary metrics."""
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(

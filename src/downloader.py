@@ -5,7 +5,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Tuple
-import requests
 from src.config import config
 from src.database import DatabaseManager
 
@@ -100,6 +99,7 @@ class MediaDownloader:
             return True, "already_downloaded", 0
 
         # 2. Append download flag (=d for original photo, =dv for original video)
+        import requests
         is_video = mime_type.startswith("video/") or "video" in metadata
         download_url = f"{base_url}=dv" if is_video else f"{base_url}=d"
 
