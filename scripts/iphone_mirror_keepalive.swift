@@ -33,7 +33,8 @@ final class IPhoneMirrorKeepAlive {
         }
         print("--------------------------------------------------")
 
-        if openAppOnStart {
+        let isReady = ensureIPhoneMirroringReady()
+        if isReady && openAppOnStart {
             openGooglePhotosOnIPhone()
         }
 
@@ -50,6 +51,101 @@ final class IPhoneMirrorKeepAlive {
         }
 
         cleanup()
+    }
+
+    @discardableResult
+    private func ensureIPhoneMirroringReady() -> Bool {
+        let runningApps = NSWorkspace.shared.runningApplications.filter {
+            $0.bundleIdentifier == "com.apple.ScreenContinuity" || $0.localizedName == "iPhone Mirroring"
+        }
+
+        if runningApps.isEmpty {
+            print("[\(currentTimestamp())] iPhone Mirroring is not open. Launching application...")
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            process.arguments = ["-b", "com.apple.ScreenContinuity"]
+            try? process.run()
+            process.waitUntilExit()
+            Thread.sleep(forTimeInterval: 3.0)
+        }
+
+        activateAppIfNeeded()
+
+        if isMirroringConnected() {
+            print("[\(currentTimestamp())] iPhone Mirroring is active and connected.")
+            return true
+        }
+
+        print("[\(currentTimestamp())] iPhone Mirroring is not connected. Attempting automatic connection...")
+        let maxAttempts = 15
+        for attempt in 1...maxAttempts {
+            if !isRunning { break }
+
+            if isMirroringConnected() {
+                print("[\(currentTimestamp())] iPhone Mirroring connected successfully.")
+                return true
+            }
+
+            print("[\(currentTimestamp())] Connecting to iPhone (attempt \(attempt)/\(maxAttempts))...")
+
+            let connectScript = """
+            tell application "iPhone Mirroring" to activate
+            delay 0.3
+            tell application "System Events"
+                tell process "iPhone Mirroring"
+                    try
+                        repeat with w in windows
+                            repeat with b in (buttons of entire contents of w)
+                                set bName to (name of b as string)
+                                if bName contains "Connect" or bName contains "Bağlan" or bName contains "Try" or bName contains "Tekrar" or bName contains "Continue" or bName contains "Sürdür" or bName contains "Start" or bName contains "Başla" then
+                                    click b
+                                end if
+                            end repeat
+                        end repeat
+                    end try
+                    try
+                        key code 36
+                    end try
+                end tell
+            end tell
+            """
+            executeAppleScript(connectScript)
+            Thread.sleep(forTimeInterval: 2.0)
+        }
+
+        let finalCheck = isMirroringConnected()
+        if finalCheck {
+            print("[\(currentTimestamp())] iPhone Mirroring connected.")
+        } else {
+            print("[\(currentTimestamp())] [Notice] Please unlock your iPhone if prompted to allow connection.")
+        }
+        return finalCheck
+    }
+
+    private func isMirroringConnected() -> Bool {
+        let script = """
+        tell application "System Events"
+            tell process "iPhone Mirroring"
+                try
+                    return (enabled of menu item "Home Screen" of menu 1 of menu bar item "View" of menu bar 1) as string
+                on error
+                    return "false"
+                end try
+            end tell
+        end tell
+        """
+        let result = executeAppleScript(script)
+        return result?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "true"
+    }
+
+    @discardableResult
+    private func executeAppleScript(_ source: String) -> String? {
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: source) {
+            let event = appleScript.executeAndReturnError(&error)
+            return event.stringValue
+        }
+        return nil
     }
 
     private func openGooglePhotosOnIPhone() {
@@ -69,10 +165,7 @@ final class IPhoneMirrorKeepAlive {
             end tell
         end tell
         """
-        var error: NSDictionary?
-        if let appleScript = NSAppleScript(source: script) {
-            appleScript.executeAndReturnError(&error)
-        }
+        executeAppleScript(script)
         Thread.sleep(forTimeInterval: 2.0)
     }
 
@@ -154,9 +247,9 @@ final class IPhoneMirrorKeepAlive {
     }
 
     private func performKeepAliveCycle() {
-        guard let windowRect = findIPhoneMirroringWindow() else {
-            print("[\(currentTimestamp())] iPhone Mirroring window not detected. Launching/activating...")
-            activateAppIfNeeded()
+        guard let windowRect = findIPhoneMirroringWindow(), isMirroringConnected() else {
+            print("[\(currentTimestamp())] iPhone Mirroring window lost or disconnected. Reconnecting...")
+            ensureIPhoneMirroringReady()
             return
         }
 
