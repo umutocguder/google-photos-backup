@@ -20,6 +20,7 @@ final class IPhoneMirrorKeepAlive {
     }
 
     func start() {
+        setlinebuf(stdout)
         setupSignalHandlers()
         acquirePowerAssertion()
 
