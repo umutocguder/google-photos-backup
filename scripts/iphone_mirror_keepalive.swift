@@ -9,12 +9,14 @@ final class IPhoneMirrorKeepAlive {
     private let interval: TimeInterval
     private let swipeDistance: CGFloat
     private let maxDuration: TimeInterval
+    private let openAppOnStart: Bool
     private var isRunning = true
 
-    init(interval: TimeInterval = 20.0, swipeDistance: CGFloat = 40.0, maxDuration: TimeInterval = 0.0) {
+    init(interval: TimeInterval = 20.0, swipeDistance: CGFloat = 40.0, maxDuration: TimeInterval = 0.0, openAppOnStart: Bool = true) {
         self.interval = interval
         self.swipeDistance = swipeDistance
         self.maxDuration = maxDuration
+        self.openAppOnStart = openAppOnStart
     }
 
     func start() {
@@ -30,6 +32,10 @@ final class IPhoneMirrorKeepAlive {
         }
         print("--------------------------------------------------")
 
+        if openAppOnStart {
+            openGooglePhotosOnIPhone()
+        }
+
         let startTime = Date()
 
         while isRunning {
@@ -43,6 +49,30 @@ final class IPhoneMirrorKeepAlive {
         }
 
         cleanup()
+    }
+
+    private func openGooglePhotosOnIPhone() {
+        print("[\(currentTimestamp())] Searching and opening Google Photos on iPhone...")
+        let script = """
+        tell application "iPhone Mirroring" to activate
+        delay 0.5
+        tell application "System Events"
+            tell process "iPhone Mirroring"
+                try
+                    click menu item "Spotlight" of menu 1 of menu bar item "View" of menu bar 1
+                    delay 0.6
+                    keystroke "Google Photos"
+                    delay 1.0
+                    key code 36
+                end try
+            end tell
+        end tell
+        """
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: script) {
+            appleScript.executeAndReturnError(&error)
+        }
+        Thread.sleep(forTimeInterval: 2.0)
     }
 
     func stop() {
@@ -184,6 +214,7 @@ enum KeepAliveManager {
 var interval: TimeInterval = 20.0
 var swipeDist: CGFloat = 40.0
 var duration: TimeInterval = 0.0
+var openAppOnStart = true
 
 let args = CommandLine.arguments
 var index = 1
@@ -204,6 +235,8 @@ while index < args.count {
             duration = val * 60.0
             index += 1
         }
+    case "--no-open":
+        openAppOnStart = false
     case "--help", "-h":
         print("""
         Usage: iphone_mirror_keepalive [options]
@@ -212,6 +245,7 @@ while index < args.count {
           -i, --interval <seconds>    Interval between swipe events (default: 20s)
           -d, --distance <pixels>     Vertical swipe distance in pixels (default: 40px)
           -t, --duration <minutes>    Run duration in minutes (default: 0 = indefinite)
+              --no-open               Skip auto-searching and opening Google Photos
           -h, --help                  Show this help message
         """)
         exit(0)
@@ -221,6 +255,6 @@ while index < args.count {
     index += 1
 }
 
-let keepAlive = IPhoneMirrorKeepAlive(interval: interval, swipeDistance: swipeDist, maxDuration: duration)
+let keepAlive = IPhoneMirrorKeepAlive(interval: interval, swipeDistance: swipeDist, maxDuration: duration, openAppOnStart: openAppOnStart)
 KeepAliveManager.sharedInstance = keepAlive
 keepAlive.start()
