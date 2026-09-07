@@ -21,14 +21,13 @@ final class IPhoneMirrorKeepAlive {
         setupSignalHandlers()
         acquirePowerAssertion()
 
-        print("=== iPhone Mirroring Keep-Alive (by 11hopem) ===")
+        print("=== Google Photos Backup — iPhone Keep-Alive ===")
         print("Interval: \(Int(interval))s | Swipe Distance: \(Int(swipeDistance))px")
         if maxDuration > 0 {
             print("Auto-stop after: \(Int(maxDuration / 60)) minutes")
         } else {
             print("Running indefinitely. Press Ctrl+C to stop.")
         }
-        print("Powered by 11hopem Software | https://11hopem.com")
         print("--------------------------------------------------")
 
         let startTime = Date()
@@ -62,7 +61,7 @@ final class IPhoneMirrorKeepAlive {
     }
 
     private func acquirePowerAssertion() {
-        let reason = "iCloud Backup Keep Alive via iPhone Mirroring" as CFString
+        let reason = "Google Photos Backup Keep Alive via iPhone Mirroring" as CFString
         let result = IOPMAssertionCreateWithName(
             kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
             IOPMAssertionLevel(kIOPMAssertionLevelOn),
@@ -72,9 +71,9 @@ final class IPhoneMirrorKeepAlive {
 
         if result == kIOReturnSuccess {
             isAssertionActive = true
-            print("[\(currentTimestamp())] [11hopem] Sleep prevention assertion active.")
+            print("[\(currentTimestamp())] Sleep prevention assertion active.")
         } else {
-            print("[\(currentTimestamp())] [11hopem] [Warning] Could not acquire sleep prevention assertion.")
+            print("[\(currentTimestamp())] [Warning] Could not acquire sleep prevention assertion.")
         }
     }
 
@@ -82,12 +81,12 @@ final class IPhoneMirrorKeepAlive {
         guard isAssertionActive else { return }
         IOPMAssertionRelease(assertionID)
         isAssertionActive = false
-        print("[\(currentTimestamp())] [11hopem] Sleep prevention assertion released.")
+        print("[\(currentTimestamp())] Sleep prevention assertion released.")
     }
 
     private func cleanup() {
         releasePowerAssertion()
-        print("[\(currentTimestamp())] [11hopem] Keep-Alive stopped by 11hopem.")
+        print("[\(currentTimestamp())] Keep-Alive stopped.")
     }
 
     private func findIPhoneMirroringWindow() -> CGRect? {
@@ -125,7 +124,7 @@ final class IPhoneMirrorKeepAlive {
 
     private func performKeepAliveCycle() {
         guard let windowRect = findIPhoneMirroringWindow() else {
-            print("[\(currentTimestamp())] [11hopem] iPhone Mirroring window not detected. Launching/activating...")
+            print("[\(currentTimestamp())] iPhone Mirroring window not detected. Launching/activating...")
             activateAppIfNeeded()
             return
         }
@@ -145,7 +144,7 @@ final class IPhoneMirrorKeepAlive {
             CGWarpMouseCursorPosition(orig)
         }
 
-        print("[\(currentTimestamp())] [11hopem] Kept alive: subtle swipe up on iPhone window (\(Int(windowRect.origin.x)), \(Int(windowRect.origin.y)))")
+        print("[\(currentTimestamp())] Kept alive: subtle swipe up on iPhone window (\(Int(windowRect.origin.x)), \(Int(windowRect.origin.y)))")
     }
 
     private func simulateSwipe(from start: CGPoint, to end: CGPoint) {
