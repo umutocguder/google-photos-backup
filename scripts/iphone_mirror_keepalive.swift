@@ -214,7 +214,7 @@ final class IPhoneMirrorKeepAlive {
     }
 
     private func findIPhoneMirroringWindow() -> CGRect? {
-        let options: CGWindowListOption = [.optionOnScreenOnly, .excludeDesktopElements]
+        let options: CGWindowListOption = [.excludeDesktopElements]
         guard let windowList = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else {
             return nil
         }
