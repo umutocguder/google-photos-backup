@@ -22,7 +22,7 @@ class TestTelemetryLogger(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_firebase_config(self):
-        self.assertEqual(FIREBASE_ECOSYSTEM_CONFIG["account"], "umutocguder@gmail.com")
+        self.assertEqual(FIREBASE_ECOSYSTEM_CONFIG["account"], "umutocgdr@gmail.com")
         self.assertEqual(FIREBASE_ECOSYSTEM_CONFIG["project_id"], "hopem-software-cloud")
 
     def test_log_writing_and_local_custody(self):

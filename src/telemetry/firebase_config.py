@@ -4,7 +4,7 @@
 
 FIREBASE_ECOSYSTEM_CONFIG = {
     "project_id": "hopem-software-cloud",
-    "account": "umutocguder@gmail.com",
+    "account": "umutocgdr@gmail.com",
     "cloud_logging_url": "https://logging.googleapis.com/v2/entries:write",
     "error_reporting_url": "https://clouderrorreporting.googleapis.com/v1beta1/projects/hopem-software-cloud/events:report"
 }
