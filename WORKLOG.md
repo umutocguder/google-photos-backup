@@ -56,3 +56,11 @@ This document tracks all architectural decisions, implementations, and system ha
   - `python3 -m unittest discover -s tests -p "test_*.py"` executed: 11/11 tests passed in 0.022s with 100% success.
 
 
+
+
+---
+
+## 2026-09-28 08:27 - Zorunlu Marka Kimliği ve Logo Eklemesi
+- **Görev ve Amaç**: Projeye özgün vektör logo (`assets/logo.svg`) eklenmesi ve marka kimliği standardının sağlanması.
+- **Doğrulama**: 14 adet otomatik test çalıştırıldı (All Passed).
+- **Etkilenen Dosyalar**: `assets/logo.svg`, `WORKLOG.md`.

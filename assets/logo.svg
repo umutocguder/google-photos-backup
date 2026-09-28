@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="pinRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EA4335" />
+      <stop offset="100%" stop-color="#C5221F" />
+    </linearGradient>
+    <linearGradient id="pinYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBC04" />
+      <stop offset="100%" stop-color="#F29900" />
+    </linearGradient>
+    <linearGradient id="pinGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34A853" />
+      <stop offset="100%" stop-color="#188038" />
+    </linearGradient>
+    <linearGradient id="pinBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4285F4" />
+      <stop offset="100%" stop-color="#1967D2" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Dark Rounded Container -->
+  <rect width="512" height="512" rx="128" fill="#0B132B" />
+
+  <!-- Outer Protective Shield Outline -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#1E293B" stroke-width="4" />
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#38BDF8" stroke-width="4" stroke-dasharray="24 32" opacity="0.6" />
+
+  <!-- Four Photos Pinwheel Blades centered at 256, 210 -->
+  <g transform="translate(256, 220)" filter="url(#shadow)">
+    <!-- Top Blade (Red) -->
+    <path d="M 0 0 C 0 -45, 45 -45, 45 0 C 45 30, 0 30, 0 0 Z" fill="url(#pinRed)" transform="rotate(0) translate(0, -45)" />
+    <!-- Right Blade (Yellow) -->
+    <path d="M 0 0 C 0 -45, 45 -45, 45 0 C 45 30, 0 30, 0 0 Z" fill="url(#pinYellow)" transform="rotate(90) translate(0, -45)" />
+    <!-- Bottom Blade (Green) -->
+    <path d="M 0 0 C 0 -45, 45 -45, 45 0 C 45 30, 0 30, 0 0 Z" fill="url(#pinGreen)" transform="rotate(180) translate(0, -45)" />
+    <!-- Left Blade (Blue) -->
+    <path d="M 0 0 C 0 -45, 45 -45, 45 0 C 45 30, 0 30, 0 0 Z" fill="url(#pinBlue)" transform="rotate(270) translate(0, -45)" />
+    <!-- Center Hub -->
+    <circle cx="0" cy="0" r="16" fill="#FFFFFF" />
+  </g>
+
+  <!-- Downward Backup / Local Vault Arrow Base -->
+  <g transform="translate(256, 370)" filter="url(#shadow)">
+    <rect x="-100" y="10" width="200" height="24" rx="12" fill="#1E293B" stroke="#38BDF8" stroke-width="3" />
+    <circle cx="-60" cy="22" r="4" fill="#38BDF8" />
+    <circle cx="-40" cy="22" r="4" fill="#38BDF8" />
+    <line x1="0" y1="-35" x2="0" y2="0" stroke="#38BDF8" stroke-width="8" stroke-linecap="round" />
+    <polyline points="-18,-15 0,3 18,-15" fill="none" stroke="#38BDF8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
