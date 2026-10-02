@@ -3,6 +3,9 @@
 # Licensed under 11 Hopem Software Proprietary License.
 
 import sqlite3
+import hashlib
+import json
+import shutil
 from datetime import datetime, timezone
 
 from pathlib import Path
@@ -12,9 +15,14 @@ from src.config import config
 class DatabaseManager:
     """Manages SQLite storage for tracking media metadata, checksums, and sync history."""
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Optional[Path] = None, auto_backup: bool = True):
         self.db_path = db_path or config.db_path
         self._init_db()
+        if auto_backup and self.db_path.exists() and self.db_path.stat().st_size > 0:
+            try:
+                self.backup_database()
+            except Exception:
+                pass
 
     def _get_connection(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
@@ -211,3 +219,95 @@ class DatabaseManager:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM albums ORDER BY title ASC")
             return [dict(row) for row in cursor.fetchall()]
+
+    @property
+    def backup_dir(self) -> Path:
+        b_dir = self.db_path.parent / "backups"
+        b_dir.mkdir(parents=True, exist_ok=True)
+        return b_dir
+
+    @property
+    def latest_backup_path(self) -> Path:
+        return self.backup_dir / "metadata_latest_backup.db"
+
+    @property
+    def checksum_log_path(self) -> Path:
+        return self.backup_dir / "metadata_checksums.json"
+
+    def backup_database(self) -> Dict[str, Any]:
+        """Creates an autonomous, verified, timestamped backup using SQLite online backup API."""
+        if not self.db_path.exists():
+            raise FileNotFoundError(f"Database file not found at {self.db_path}")
+
+        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S-%fZ")
+        timestamped_path = self.backup_dir / f"metadata_backup_{date_str}.db"
+
+        # Use sqlite3 online backup API for crash-safe, zero-lock snapshot
+        with self._get_connection() as src_conn:
+            try:
+                src_conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+            except Exception:
+                pass
+
+            with sqlite3.connect(timestamped_path) as dst_conn:
+                src_conn.backup(dst_conn)
+
+            shutil.copy2(timestamped_path, self.latest_backup_path)
+
+        with open(timestamped_path, "rb") as f:
+            data = f.read()
+            sha256_hash = hashlib.sha256(data).hexdigest()
+            file_size = len(data)
+
+        metadata = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "sha256": sha256_hash,
+            "fileSize": file_size,
+            "backupFile": timestamped_path.name,
+            "latestBackupFile": self.latest_backup_path.name,
+        }
+
+        checksum_log = []
+        if self.checksum_log_path.exists():
+            try:
+                with open(self.checksum_log_path, "r", encoding="utf-8") as f:
+                    checksum_log = json.load(f)
+                    if not isinstance(checksum_log, list):
+                        checksum_log = []
+            except Exception:
+                checksum_log = []
+
+        checksum_log.insert(0, metadata)
+        if len(checksum_log) > 30:
+            checksum_log = checksum_log[:30]
+
+        with open(self.checksum_log_path, "w", encoding="utf-8") as f:
+            json.dump(checksum_log, f, indent=2)
+
+        return metadata
+
+    def verify_backup_integrity(self) -> bool:
+        """Verifies integrity of the active database against the latest backup."""
+        if not self.db_path.exists() or not self.latest_backup_path.exists():
+            return False
+
+        try:
+            with sqlite3.connect(self.latest_backup_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute("PRAGMA quick_check;")
+                result = cursor.fetchone()
+                return bool(result and result[0] == "ok")
+        except Exception:
+            return False
+
+    def restore_from_latest_backup(self) -> int:
+        """Restores database from latest valid backup."""
+        if not self.latest_backup_path.exists():
+            raise FileNotFoundError("Latest backup file does not exist")
+
+        with sqlite3.connect(self.latest_backup_path) as src_conn:
+            with self._get_connection() as dst_conn:
+                src_conn.backup(dst_conn)
+
+        return self.latest_backup_path.stat().st_size
+

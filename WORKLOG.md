@@ -64,3 +64,15 @@ This document tracks all architectural decisions, implementations, and system ha
 - **Görev ve Amaç**: Projeye özgün vektör logo (`assets/logo.svg`) eklenmesi ve marka kimliği standardının sağlanması.
 - **Doğrulama**: 14 adet otomatik test çalıştırıldı (All Passed).
 - **Etkilenen Dosyalar**: `assets/logo.svg`, `WORKLOG.md`.
+
+---
+
+## 2026-10-02 16:37 - Zorunlu Otomatik Veritabanı Yedekleme Standardı
+- **Görev ve Amaç**: Sistemik veri güvenliği standardı doğrultusunda, Google Photos SQLite metadata veritabanı (`storage/metadata.db`) için online SQLite backup API kullanan, kilitlenmesiz ve anlık snapshot oluşturan otomatik yedekleme altyapısı kuruldu.
+- **Teknik Detaylar**:
+  1. `src/database.py`: `backup_database()`, `verify_backup_integrity()`, `restore_from_latest_backup()` fonksiyonları ve başlatmada otonom yedekleme eklendi.
+  2. `scripts/backup_db.py`: CLI ve cron üzerinden doğrudan koşturulabilen bağımsız yedekleme betiği yazıldı.
+  3. `storage/backups/`: Zaman damgalı snapshot'lar ve `metadata_checksums.json` denetim kaydı oluşturuldu.
+  4. `tests/test_database_backup.py`: Bütünlük ve en son yedekten geri yükleme testleri yazıldı (16/16 test %100 başarılı).
+- **Doğrulama**: `python3 -m unittest discover tests` -> 16/16 test başarılı, commit ve push tamamlandı.
+

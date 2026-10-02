@@ -26,6 +26,7 @@ token.pickle
 *.db
 storage/*.db
 storage/*.sqlite3
+storage/backups/*.db
 
 # Media downloads & temporary data
 downloads/

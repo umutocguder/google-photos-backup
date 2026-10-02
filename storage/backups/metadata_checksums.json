@@ -1,0 +1,9 @@
+[
+  {
+    "timestamp": "2026-10-02T13:37:08.112732+00:00",
+    "sha256": "1099aefa66e567db148369575d790b8b4c6da9fff81162ce483a9743913ccb4b",
+    "fileSize": 36864,
+    "backupFile": "metadata_backup_2026-10-02T13-37-08-110860Z.db",
+    "latestBackupFile": "metadata_latest_backup.db"
+  }
+]
