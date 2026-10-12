@@ -1,6 +1,6 @@
-# Created by 11hopem (11 Hopem Software Ltd. Şti.)
+# Created by 11Hopem
 # Copyright (c) 2026 11hopem. All rights reserved.
-# Licensed under 11 Hopem Software Proprietary License.
+# Licensed under 11Hopem Proprietary License.
 
 import json
 import os
