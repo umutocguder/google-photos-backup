@@ -57,3 +57,8 @@ secrets.plist
 *.keystore
 id_rsa*
 id_ed25519*
+
+# AI Internal Context & Workflow Files (Local Only)
+AGENTS.md
+CLAUDE.md
+WORKLOG.md
