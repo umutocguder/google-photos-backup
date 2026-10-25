@@ -38,3 +38,22 @@ takeout_imports/
 
 # Compiled scripts
 scripts/iphone_mirror_keepalive
+
+# 11Hopem Security & Secrets Shield
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.p8
+*.pkcs12
+*credentials*.json
+*service-account*.json
+secrets.json
+secrets.plist
+*.keystore
+id_rsa*
+id_ed25519*
