@@ -1,0 +1,78 @@
+# Project Worklog — Google Photos Backup
+
+This document tracks all architectural decisions, implementations, and system handoffs for `google-photos-backup`.
+
+---
+
+### [2026-09-04 16:15] Initial Project Scaffolding & Architecture
+- **Task & Objective**: Scaffold an incremental, deduplicating, high-performance Google Photos backup utility with dual-mode interfaces (Rich CLI and local FastAPI web dashboard), supporting full original resolution download, timestamp preservation, and Google Takeout reconciliation.
+- **Technical Decisions & Architecture**:
+  - **Modular Python Core**: Clean separation of concerns across `auth` (OAuth2), `client` (Google Photos API), `database` (SQLite3 deduplication & state), `downloader` (concurrent chunked fetch with EXIF/mtime sync), `takeout` (Takeout sidecar JSON parser), `cli` (Rich terminal), and `web` (FastAPI local dashboard).
+  - **Deduplication Engine**: Media items are tracked with SHA-256 hashes, file sizes, and Google Photos IDs in `storage/metadata.db`.
+  - **Organization Strategies**: Supports organizing by date (`YYYY/MM/`) or by Google Photos album names.
+  - **Standard Compliance**: Initialized with standard 5 files (`AGENTS.md`, `CLAUDE.md`, `WORKLOG.md`, `README.md`, `.gitignore`).
+- **Affected Files & Components**:
+  - [AGENTS.md](file:///Users/umut/mycodespaces/google-photos-backup/AGENTS.md)
+  - [CLAUDE.md](file:///Users/umut/mycodespaces/google-photos-backup/CLAUDE.md)
+  - [WORKLOG.md](file:///Users/umut/mycodespaces/google-photos-backup/WORKLOG.md)
+  - [README.md](file:///Users/umut/mycodespaces/google-photos-backup/README.md)
+  - [.gitignore](file:///Users/umut/mycodespaces/google-photos-backup/.gitignore)
+  - [requirements.txt](file:///Users/umut/mycodespaces/google-photos-backup/requirements.txt)
+  - [pyproject.toml](file:///Users/umut/mycodespaces/google-photos-backup/pyproject.toml)
+  - [main.py](file:///Users/umut/mycodespaces/google-photos-backup/main.py)
+  - `src/` modules
+- **Current Status & Verification**:
+  - Project structure established.
+  - Repository initialized on `main` branch.
+- **Next Steps**:
+  - Complete Python core implementation and verify syntax.
+  - Create Private GitHub repository and push.
+  - Register in Antigravity Projects config.
+
+---
+
+### [2026-09-05 00:20] Native iPhone Mirroring Keep-Alive Utility
+- **Task & Objective**: Build a native macOS utility to prevent Mac and iPhone from sleeping during long backup sessions (e.g. iCloud Backup) by acquiring IOKit display sleep assertions and dispatching periodic subtle vertical swipe gestures directly to the active `iPhone Mirroring` (`com.apple.ScreenContinuity`) window.
+- **Technical Decisions & Architecture**:
+  - **Native Swift (`scripts/iphone_mirror_keepalive.swift`)**: Uses `IOKit.pwr_mgt` (`kIOPMAssertionTypePreventUserIdleDisplaySleep`) to block system/display sleep.
+  - **Dynamic Window Lookup**: Uses `CGWindowListCopyWindowInfo` to detect the `iPhone Mirroring` window rect in real time.
+  - **Seamless Mouse Cursor Preservation**: Automatically saves and restores the Mac pointer (`CGWarpMouseCursorPosition`) after each simulated gesture.
+  ### [2026-09-05 00:39] Automated Unit Test Suite Implementation
+- **Task & Objective**: Implement comprehensive zero-dependency automated unit test suite complying with system-wide testing standard (Section 8 of AGENTS.md).
+- **Technical Decisions & Architecture**:
+  - Built on Python's native `unittest` framework ensuring immediate execution with zero third-party installation.
+  - Implemented `tests/test_database.py`: Verifies SQLite table creation, insertion, duplicate detection via SHA-256 hashes, and album tracking.
+  - Implemented `tests/test_downloader.py`: Verifies filename sanitization, target directory hierarchy (`YYYY/MM/` and `Albums/`), and filename collision resolution.
+  - Implemented `tests/test_cli.py`: Verifies argument parsing across all subcommands (`auth`, `status`, `albums`, `sync`, `takeout`, `web`) and byte format utility.
+- **Affected Files & Components**:
+  - [tests/__init__.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/__init__.py)
+  - [tests/test_database.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/test_database.py)
+  - [tests/test_downloader.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/test_downloader.py)
+  - [tests/test_cli.py](file:///Users/umut/mycodespaces/google-photos-backup/tests/test_cli.py)
+  - [src/database.py](file:///Users/umut/mycodespaces/google-photos-backup/src/database.py)
+  - [src/downloader.py](file:///Users/umut/mycodespaces/google-photos-backup/src/downloader.py)
+  - [WORKLOG.md](file:///Users/umut/mycodespaces/google-photos-backup/WORKLOG.md)
+- **Current Status & Verification**:
+  - `python3 -m unittest discover -s tests -p "test_*.py"` executed: 11/11 tests passed in 0.022s with 100% success.
+
+
+
+
+---
+
+## 2026-09-28 08:27 - Zorunlu Marka Kimliği ve Logo Eklemesi
+- **Görev ve Amaç**: Projeye özgün vektör logo (`assets/logo.svg`) eklenmesi ve marka kimliği standardının sağlanması.
+- **Doğrulama**: 14 adet otomatik test çalıştırıldı (All Passed).
+- **Etkilenen Dosyalar**: `assets/logo.svg`, `WORKLOG.md`.
+
+---
+
+## 2026-10-02 16:37 - Zorunlu Otomatik Veritabanı Yedekleme Standardı
+- **Görev ve Amaç**: Sistemik veri güvenliği standardı doğrultusunda, Google Photos SQLite metadata veritabanı (`storage/metadata.db`) için online SQLite backup API kullanan, kilitlenmesiz ve anlık snapshot oluşturan otomatik yedekleme altyapısı kuruldu.
+- **Teknik Detaylar**:
+  1. `src/database.py`: `backup_database()`, `verify_backup_integrity()`, `restore_from_latest_backup()` fonksiyonları ve başlatmada otonom yedekleme eklendi.
+  2. `scripts/backup_db.py`: CLI ve cron üzerinden doğrudan koşturulabilen bağımsız yedekleme betiği yazıldı.
+  3. `storage/backups/`: Zaman damgalı snapshot'lar ve `metadata_checksums.json` denetim kaydı oluşturuldu.
+  4. `tests/test_database_backup.py`: Bütünlük ve en son yedekten geri yükleme testleri yazıldı (16/16 test %100 başarılı).
+- **Doğrulama**: `python3 -m unittest discover tests` -> 16/16 test başarılı, commit ve push tamamlandı.
+
