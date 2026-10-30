@@ -58,3 +58,6 @@ secrets.plist
 id_rsa*
 id_ed25519*
 
+
+# graphify generated knowledge graph
+graphify-out/
